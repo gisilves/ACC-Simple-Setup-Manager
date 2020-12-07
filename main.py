@@ -17,36 +17,36 @@ class ACCSetupManager(Frame):
     
     def initUI(self):
         self.master.title("ACC Setup Manager")
-        self.master.geometry('500x550')
+        self.master.geometry('600x550')
 
-        self.lbl = Label(self.master, text="Setups will be saved in the following directory:",bg="yellow")
-        self.lbl.place(x=250, y=490, anchor="center")
+        self.lbl = Label(self.master, text="Setups will be saved in the following directory:",bg="#DCDCDC")
+        self.lbl.place(x=300, y=490, anchor="center")
 
         self.lbl2 = Label(self.master, text=os.path.expanduser('~\Documents\Documents')+'\Assetto Corsa Competizione')
-        self.lbl2.place(x=250, y=510, anchor="center")
+        self.lbl2.place(x=300, y=510, anchor="center")
 
         self.lbl3 = Label(self.master, text="No setup opened")
-        self.lbl3.place(x=250, y=530, anchor="center")
+        self.lbl3.place(x=300, y=530, anchor="center")
         
         self.CarList = [
         "Alpine A110 GT4",
-        "AMR V8 Vantage GT3",
         "AMR V12 Vantage GT3",
+        "AMR V8 Vantage GT3",
         "Aston Martin Vantage GT4",
         "Audi R8 LMS",
         "Audi R8 LMS EVO",
         "Audi R8 LMS GT4",
-        "Bentley Continental GT3",
-        "Bentley Continental GT3",
+        "Bentley Continental GT3 2016",
+        "Bentley Continental GT3 2018",
         "BMW M4 GT4",
         "BMW M6 GT3",
         "Chevrolet Camaro GT4",
-        "Emil Frey Jaguar G3",
         "Ferrari 488 GT3",
         "Ferrari 488 GT3 Evo",
         "Ginetta G55 GT4",
         "Honda NSX GT3",
         "Honda NSX GT3 EVO",
+        "Emil Frey Jaguar G3",
         "KTM X-Bow GT4",
         "Lamborghini Huracan GT3",
         "Lamborghini Huracan GT3 EVO",
@@ -59,8 +59,8 @@ class ACCSetupManager(Frame):
         "Mercedes AMG GT3",
         "Mercedes Amg GT3 EVO",
         "Mercedes AMG GT4",
-        "Nissan GT R Nismo GT3",
-        "Nissan GT-R Nismo GT3",
+        "Nissan GT R Nismo GT3 2017",
+        "Nissan GT-R Nismo GT3 2018",
         "Porsche 718 Cayman GT4",
         "Porsche 991 GT3-R",
         "Porsche 991 II GT3 Cup",
@@ -73,9 +73,9 @@ class ACCSetupManager(Frame):
         "amr_v12_vantage_gt3",
         "amr_v8_vantage_gt3",
         "amr_v8_vantage_gt4",
-        "audi_r8_gt4",
         "audi_r8_lms",
         "audi_r8_lms_evo",
+        "audi_r8_gt4",
         "bentley_continental_gt3_2016",
         "bentley_continental_gt3_2018",
         "bmw_m4_gt4",
@@ -88,7 +88,6 @@ class ACCSetupManager(Frame):
         "honda_nsx_gt3_evo",
         "jaguar_g3",
         "ktm_xbow_gt4",
-        "lamborghini_gallardo_rex",
         "lamborghini_huracan_gt3",
         "lamborghini_huracan_gt3_evo",
         "lamborghini_huracan_st",
@@ -105,7 +104,8 @@ class ACCSetupManager(Frame):
         "porsche_718_cayman_gt4_mr",
         "porsche_991_gt3_r",
         "porsche_991ii_gt3_cup",
-        "porsche_991ii_gt3_r"
+        "porsche_991ii_gt3_r",
+        "lamborghini_gallardo_rex"
         ]
 
         self.TrackList = [
@@ -149,26 +149,27 @@ class ACCSetupManager(Frame):
         self.variable = StringVar(self)
         self.variable.set("Choose a car")
         self.opt = OptionMenu(self, self.variable, *self.CarList)
-        self.opt.config(width=28, font=('TkDefaultFont', 10))
+        self.opt.config(width=35, font=('TkDefaultFont', 10))
         self.opt.grid(row=1, column=0)
 
         self.variable1 = StringVar(self)
         self.variable1.set("Choose a track")
         self.opt1 = OptionMenu(self, self.variable1, *self.TrackList)
-        self.opt1.config(width=28, font=('TkDefaultFont', 10))
+        self.opt1.config(width=35, font=('TkDefaultFont', 10))
         self.opt1.grid(row=1, column=1)
 
         var2 = StringVar()
-        self.lb = Listbox(self, listvariable=var2, width=38, height=24)
+        self.lb = Listbox(self, listvariable=var2, width=47, height=24)
         self.lb.grid(row=2, column=0)
+        self.lb.bind('<Double-1>', self.display)
 
         btn = Button(self, text="Load local setups", command=self.onLoad)
-        btn.grid(column=0, row=3)
-        btn = Button(self, text="Add a new setup", command=self.onOpen)
-        btn.grid(column=1, row=3)
+        btn.grid(column=0, row=3,padx=10)
+        btn2 = Button(self, text="Copy a new setup", command=self.onOpen)
+        btn2.grid(column=1, row=3)
 
         var3 = StringVar()
-        self.txt = st.ScrolledText(self,width=28, height=24)
+        self.txt = st.ScrolledText(self,width=33, height=24)
         #self.txt.configure(state ='disabled') 
         self.txt.grid(row=2, column=1)
 
@@ -179,28 +180,33 @@ class ACCSetupManager(Frame):
         ftypes = [('Setup files', '*.json'), ('All files', '*')]
         dlg = filedialog.Open(self, filetypes = ftypes)
         fl = dlg.show()
-
         if fl != '':
-            text = self.readFile(fl)
+            text = self.readFile(fl, True)
+
 
     def onLoad(self):
+        self.lb.delete(0,'end')
         for item in os.listdir(os.path.expanduser('~\Documents')+'\Assetto Corsa Competizione\Setups\\' 
                                                                 + self.CarListFolder[self.CarList.index(self.variable.get())] 
                                                                 + "\\" 
                                                                 + self.TrackListFolder[self.TrackList.index(self.variable1.get())]):
-
             self.lb.insert('end', item)
 
-    def readFile(self, filename):
-
+    def readFile(self, filename, to_copy):
+        self.txt.delete(1.0,'end')
         with io.open(filename, 'r', encoding='utf-8-sig') as json_file:
             data = json.load(json_file)
-            data = self.flatten_json(self, data)
+            data = self.flatten_json(data)
             self.lbl3.config(text='Loaded setup file for car ' + data['carName'])
-            #self.txt.insert('end',text)            
-        shutil.copyfile(filename, os.path.expanduser('~\Documents')+'\Assetto Corsa Competizione\Setups\\' + self.variable.get() + "\\" + self.variable1.get())
+            
+            for key, value in data.items():
+                self.txt.insert('end', str(key).replace('basicSetup_', '').replace('advancedSetup_', '').replace('strategy_','') + ':\n' + str(value) + '\n\n')
+        
+        if(to_copy):
+            destination = os.path.join( os.path.expanduser('~\Documents'), 'Assetto Corsa Competizione', 'Setups', self.CarListFolder[self.CarList.index(self.variable.get())], self.TrackListFolder[self.TrackList.index(self.variable1.get())])
+            shutil.copy2(filename, destination)
 
-    def flatten_json(self, y):
+    def flatten_json(self,y):
         out = {}
 
         def flatten(x, name=''):
@@ -216,6 +222,11 @@ class ACCSetupManager(Frame):
                 out[name[:-1]] = x
         flatten(y)
         return out
+
+    def display(self,event): 
+        current_filename = os.path.expanduser('~\Documents')+'\Assetto Corsa Competizione\Setups\\' + self.CarListFolder[self.CarList.index(self.variable.get())] + "\\" + self.TrackListFolder[self.TrackList.index(self.variable1.get())] + "\\" + self.lb.get(self.lb.curselection())
+        self.readFile(current_filename, False)
+
 
 # Main
 if __name__ == "__main__":
