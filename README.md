@@ -1,4 +1,4 @@
-# ACC-Setup-Manager
+# ACC-Simple-Setup-Manager
 Simple setup manager for Assetto Corsa Competizione
 
 1. Select a car and a track then either
