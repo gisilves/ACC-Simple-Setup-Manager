@@ -34,7 +34,7 @@ class ACCSetupManager(tk.Frame):
     def __init__(self,master):
         tk.Frame.__init__(self, master)
         self.master = master
-        #self.master.iconbitmap('icon.ico')
+        self.master.iconbitmap('icon.ico')
         self.initUI()
         self.pack()
     
