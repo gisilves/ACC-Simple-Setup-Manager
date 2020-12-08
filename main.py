@@ -1,4 +1,27 @@
-from tkinter import *
+""" ACC Simple Setup Manager
+
+Copyright (c) 2020 Gianluigi Silvestre
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. """
+
+
+import tkinter as tk
 from tkinter import filedialog
 import tkinter.scrolledtext as st 
 import os
@@ -7,25 +30,25 @@ import io
 import ctypes
 import shutil
 
-class ACCSetupManager(Frame):
+class ACCSetupManager(tk.Frame):
     def __init__(self,master):
-        Frame.__init__(self, master)
+        tk.Frame.__init__(self, master)
         self.master = master
-        self.master.iconbitmap('icon.ico')
+        #self.master.iconbitmap('icon.ico')
         self.initUI()
-        self.pack() #packs the Frame
+        self.pack()
     
     def initUI(self):
-        self.master.title("ACC Setup Manager")
+        self.master.title("ACC Simple Setup Manager")
         self.master.geometry('600x550')
 
-        self.lbl = Label(self.master, text="Setups will be saved in the following directory:",bg="#DCDCDC")
+        self.lbl = tk.Label(self.master, text="Setups will be saved in the following directory:",bg="#DCDCDC")
         self.lbl.place(x=300, y=490, anchor="center")
 
-        self.lbl2 = Label(self.master, text=os.path.expanduser('~\Documents\Documents')+'\Assetto Corsa Competizione')
+        self.lbl2 = tk.Label(self.master, text=os.path.expanduser('~\Documents\Documents')+'\Assetto Corsa Competizione\Setups')
         self.lbl2.place(x=300, y=510, anchor="center")
 
-        self.lbl3 = Label(self.master, text="No setup opened")
+        self.lbl3 = tk.Label(self.master, text="No setup opened")
         self.lbl3.place(x=300, y=530, anchor="center")
         
         self.CarList = [
@@ -146,35 +169,30 @@ class ACCSetupManager(Frame):
         "zolder"
         ]
 
-        self.variable = StringVar(self)
-        self.variable.set("Choose a car")
-        self.opt = OptionMenu(self, self.variable, *self.CarList)
-        self.opt.config(width=35, font=('TkDefaultFont', 10))
-        self.opt.grid(row=1, column=0)
+        self.car_variable = tk.StringVar(self)
+        self.car_variable.set("Choose a car")
+        self.car_menu = tk.OptionMenu(self, self.car_variable, *self.CarList)
+        self.car_menu.config(width=35, font=('TkDefaultFont', 10))
+        self.car_menu.grid(row=1, column=0)
 
-        self.variable1 = StringVar(self)
-        self.variable1.set("Choose a track")
-        self.opt1 = OptionMenu(self, self.variable1, *self.TrackList)
-        self.opt1.config(width=35, font=('TkDefaultFont', 10))
-        self.opt1.grid(row=1, column=1)
+        self.track_variable = tk.StringVar(self)
+        self.track_variable.set("Choose a track")
+        self.track_menu = tk.OptionMenu(self, self.track_variable, *self.TrackList)
+        self.track_menu.config(width=35, font=('TkDefaultFont', 10))
+        self.track_menu.grid(row=1, column=1)
 
-        var2 = StringVar()
-        self.lb = Listbox(self, listvariable=var2, width=47, height=24)
-        self.lb.grid(row=2, column=0)
-        self.lb.bind('<Double-1>', self.display)
+        self.current_setup = tk.StringVar()
+        self.setuplist = tk.Listbox(self, listvariable=self.current_setup, width=47, height=24)
+        self.setuplist.grid(row=2, column=0)
+        self.setuplist.bind('<Double-1>', self.display)
 
-        btn = Button(self, text="Load local setups", command=self.onLoad)
+        btn = tk.Button(self, text="Load local setups", command=self.onLoad)
         btn.grid(column=0, row=3,padx=10)
-        btn2 = Button(self, text="Copy a new setup", command=self.onOpen)
+        btn2 = tk.Button(self, text="Copy a new setup", command=self.onOpen)
         btn2.grid(column=1, row=3)
 
-        var3 = StringVar()
         self.txt = st.ScrolledText(self,width=33, height=24)
-        #self.txt.configure(state ='disabled') 
         self.txt.grid(row=2, column=1)
-
-        #self.lb2 = Listbox(self, listvariable=var3, width=38, height=24)
-        #self.lb2.grid(row=2, column=1)
 
     def onOpen(self):
         ftypes = [('Setup files', '*.json'), ('All files', '*')]
@@ -183,28 +201,49 @@ class ACCSetupManager(Frame):
         if fl != '':
             text = self.readFile(fl, True)
 
-
     def onLoad(self):
-        self.lb.delete(0,'end')
-        for item in os.listdir(os.path.expanduser('~\Documents')+'\Assetto Corsa Competizione\Setups\\' 
-                                                                + self.CarListFolder[self.CarList.index(self.variable.get())] 
-                                                                + "\\" 
-                                                                + self.TrackListFolder[self.TrackList.index(self.variable1.get())]):
-            self.lb.insert('end', item)
+        self.setuplist.delete(0,'end')
+
+        try:
+            localdir =(os.path.expanduser('~\Documents')+'\Assetto Corsa Competizione\Setups\\'
+            + self.CarListFolder[self.CarList.index(self.car_variable.get())] 
+            + "\\" 
+            + self.TrackListFolder[self.TrackList.index(self.track_variable.get())])
+            
+            if not os.path.isdir(localdir):
+                os.makedirs(localdir)
+
+            if len(os.listdir(localdir)) == 0:
+                self.popup('No setups in local folder')
+                return
+
+            for item in os.listdir(localdir):
+                self.setuplist.insert('end', item)
+        
+        except ValueError:
+            self.popup('You must select a car and a track first')
 
     def readFile(self, filename, to_copy):
         self.txt.delete(1.0,'end')
         with io.open(filename, 'r', encoding='utf-8-sig') as json_file:
             data = json.load(json_file)
             data = self.flatten_json(data)
-            self.lbl3.config(text='Loaded setup file for car ' + data['carName'])
-            
-            for key, value in data.items():
-                self.txt.insert('end', str(key).replace('basicSetup_', '').replace('advancedSetup_', '').replace('strategy_','') + ':\n' + str(value) + '\n\n')
-        
+
+            try:
+                self.lbl3.config(text='Loaded setup file for car ' + data['carName'])
+                self.txt.insert('end', 'Setup file: ' + os.path.basename(filename) + '\n\n')
+                for key, value in data.items():
+                    self.txt.insert('end', str(key).replace('basicSetup_', '').replace('advancedSetup_', '').replace('strategy_','') + ':\n' + str(value) + '\n\n')
+            except KeyError:
+                self.popup('File is not a compatible setup file')
+                return
+
         if(to_copy):
-            destination = os.path.join( os.path.expanduser('~\Documents'), 'Assetto Corsa Competizione', 'Setups', self.CarListFolder[self.CarList.index(self.variable.get())], self.TrackListFolder[self.TrackList.index(self.variable1.get())])
-            shutil.copy2(filename, destination)
+            if(self.CarListFolder[self.CarList.index(self.car_variable.get())] == data['carName']):
+                destination = os.path.join( os.path.expanduser('~\Documents'), 'Assetto Corsa Competizione', 'Setups', self.CarListFolder[self.CarList.index(self.car_variable.get())], self.TrackListFolder[self.TrackList.index(self.track_variable.get())])
+                shutil.copy2(filename, destination)
+            else:
+                self.popup('Setup is not for the car selected, it won\'t be copied')
 
     def flatten_json(self,y):
         out = {}
@@ -224,14 +263,24 @@ class ACCSetupManager(Frame):
         return out
 
     def display(self,event): 
-        current_filename = os.path.expanduser('~\Documents')+'\Assetto Corsa Competizione\Setups\\' + self.CarListFolder[self.CarList.index(self.variable.get())] + "\\" + self.TrackListFolder[self.TrackList.index(self.variable1.get())] + "\\" + self.lb.get(self.lb.curselection())
+        current_filename = os.path.join( os.path.expanduser('~\Documents'), 'Assetto Corsa Competizione', 'Setups', self.CarListFolder[self.CarList.index(self.car_variable.get())], self.TrackListFolder[self.TrackList.index(self.track_variable.get())], self.setuplist.get(self.setuplist.curselection()))
         self.readFile(current_filename, False)
 
+    def popup(self,messagetext):
+        win = tk.Toplevel()
+        win.title('WARNING')
+        l = tk.Label(win, text=messagetext, bg='white')
+        l.pack(ipadx=50, ipady=10, fill='both', expand=True)
+        b = tk.Button(win, text="OK", command=win.destroy)
+        b.pack(pady=10, padx=10, ipadx=20, side='right')
+        x = self.winfo_x()
+        y = self.winfo_y()
+        win.geometry("+%d+%d" % (x + 320, y + 350))
 
 # Main
 if __name__ == "__main__":
     # create interface
-    root = Tk()
+    root = tk.Tk()
     application = ACCSetupManager(root)
     root.resizable(0,0)
     root.mainloop()
