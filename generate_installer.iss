@@ -38,7 +38,7 @@ Source: "C:\Users\gigi\Downloads\ACC\ACC-Simple-Setup-Manager\build\exe.win-amd6
 Source: "C:\Users\gigi\Downloads\ACC\ACC-Simple-Setup-Manager\build\exe.win-amd64-3.9\python3.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\gigi\Downloads\ACC\ACC-Simple-Setup-Manager\build\exe.win-amd64-3.9\python39.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\gigi\Downloads\ACC\ACC-Simple-Setup-Manager\build\exe.win-amd64-3.9\vcruntime140.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\gigi\Downloads\ACC\ACC-Simple-Setup-Manager\build\exe.win-amd64-3.9\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\gigi\Downloads\ACC\ACC-Simple-Setup-Manager\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
