@@ -40,16 +40,6 @@ class ACCSetupManager(tk.Frame):
     
     def initUI(self):
         self.master.title("ACC Simple Setup Manager")
-        self.master.geometry('600x550')
-
-        self.lbl = tk.Label(self.master, text="Setups will be saved in the following directory:",bg="#DCDCDC")
-        self.lbl.place(x=300, y=490, anchor="center")
-
-        self.lbl2 = tk.Label(self.master, text=os.path.expanduser('~\Documents\Documents')+'\Assetto Corsa Competizione\Setups')
-        self.lbl2.place(x=300, y=510, anchor="center")
-
-        self.lbl3 = tk.Label(self.master, text="No setup opened")
-        self.lbl3.place(x=300, y=530, anchor="center")
         
         self.CarList = [
         "Alpine A110 GT4",
@@ -169,30 +159,56 @@ class ACCSetupManager(tk.Frame):
         "zolder"
         ]
 
+        frame_left = tk.Frame(self)
+        frame_left.grid(row=0, column=0)
+        frame_left.columnconfigure(0,weight=1)
+        frame_left.rowconfigure(0,weight=1) 
+
         self.car_variable = tk.StringVar(self)
         self.car_variable.set("Choose a car")
-        self.car_menu = tk.OptionMenu(self, self.car_variable, *self.CarList)
+        self.car_menu = tk.OptionMenu(frame_left, self.car_variable, *self.CarList)
         self.car_menu.config(width=35, font=('TkDefaultFont', 10))
         self.car_menu.grid(row=1, column=0)
 
-        self.track_variable = tk.StringVar(self)
-        self.track_variable.set("Choose a track")
-        self.track_menu = tk.OptionMenu(self, self.track_variable, *self.TrackList)
-        self.track_menu.config(width=35, font=('TkDefaultFont', 10))
-        self.track_menu.grid(row=1, column=1)
-
         self.current_setup = tk.StringVar()
-        self.setuplist = tk.Listbox(self, listvariable=self.current_setup, width=47, height=24)
-        self.setuplist.grid(row=2, column=0)
+        self.setuplist = tk.Listbox(frame_left, listvariable=self.current_setup,height=24)
+        self.setuplist.grid(row=2, column=0,padx=5,pady=5,sticky='nsew')
         self.setuplist.bind('<Double-1>', self.display)
 
-        btn = tk.Button(self, text="Load local setups", command=self.onLoad)
+        btn = tk.Button(frame_left, text="Load local setups", command=self.onLoad)
         btn.grid(column=0, row=3,padx=10)
-        btn2 = tk.Button(self, text="Copy a new setup", command=self.onOpen)
-        btn2.grid(column=1, row=3)
 
-        self.txt = st.ScrolledText(self,width=33, height=24)
-        self.txt.grid(row=2, column=1)
+        frame_right = tk.Frame(self)
+        frame_right.grid(row=0, column=1)
+        frame_right.columnconfigure(0,weight=1)
+        frame_right.rowconfigure(0,weight=1) 
+
+        self.track_variable = tk.StringVar(self)
+        self.track_variable.set("Choose a track")
+        self.track_menu = tk.OptionMenu(frame_right, self.track_variable, *self.TrackList)
+        self.track_menu.config(width=35, font=('TkDefaultFont', 10))
+        self.track_menu.grid(row=1, column=0)
+
+        self.txt = st.ScrolledText(frame_right, width=32,height=24)
+        self.txt.grid(row=2, column=0,padx=5,pady=5,sticky='nsew')
+
+        btn2 = tk.Button(frame_right, text="Copy a new setup", command=self.onOpen)
+        btn2.grid(column=0, row=3)
+
+
+        frame_bottom = tk.Frame(self)
+        frame_bottom.grid(row=1, columnspan=2)
+        frame_bottom.columnconfigure(0,weight=1)
+        frame_bottom.rowconfigure(0,weight=1) 
+
+        self.lbl = tk.Label(frame_bottom, text="Setups will be saved in the following directory:",bg="#DCDCDC")
+        self.lbl.grid(row=4, pady=10)
+        
+        self.lbl2 = tk.Label(frame_bottom, text=os.path.expanduser('~\Documents\Documents')+'\Assetto Corsa Competizione\Setups')
+        self.lbl2.grid(row=5)
+
+        self.lbl3 = tk.Label(frame_bottom, text="No setup opened")
+        self.lbl3.grid(row=6)
 
     def onOpen(self):
         ftypes = [('Setup files', '*.json'), ('All files', '*')]
@@ -239,9 +255,13 @@ class ACCSetupManager(tk.Frame):
                 return
 
         if(to_copy):
-            if(self.CarListFolder[self.CarList.index(self.car_variable.get())] == data['carName']):
-                destination = os.path.join( os.path.expanduser('~\Documents'), 'Assetto Corsa Competizione', 'Setups', self.CarListFolder[self.CarList.index(self.car_variable.get())], self.TrackListFolder[self.TrackList.index(self.track_variable.get())])
-                shutil.copy2(filename, destination)
+            try:
+                if(self.CarListFolder[self.CarList.index(self.car_variable.get())] == data['carName']):
+                    destination = os.path.join( os.path.expanduser('~\Documents'), 'Assetto Corsa Competizione', 'Setups', self.CarListFolder[self.CarList.index(self.car_variable.get())], self.TrackListFolder[self.TrackList.index(self.track_variable.get())])
+                    shutil.copy2(filename, destination)
+            except ValueError:
+                    self.popup('You must select a car and a track first, setup won\'t be copied')
+
             else:
                 self.popup('Setup is not for the car selected, it won\'t be copied')
 
