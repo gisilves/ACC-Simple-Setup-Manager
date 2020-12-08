@@ -8,3 +8,5 @@ Simple setup manager for Assetto Corsa Competizione
 That's it (for now).
 
 Fell free to suggest additions and bugfixes.
+
+Written with Python3.9 and Tkinter
