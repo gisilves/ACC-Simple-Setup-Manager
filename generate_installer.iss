@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "ACC Simple Setup Manager"
-#define MyAppVersion "0.1"
+#define MyAppVersion "0.2"
 #define MyAppURL "https://github.com/gisilves/ACC-Simple-Setup-Manager"
 #define MyAppExeName "acc_simple_setup_manager.exe"
 

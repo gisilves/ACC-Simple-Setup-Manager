@@ -204,11 +204,14 @@ class ACCSetupManager(tk.Frame):
         self.lbl = tk.Label(frame_bottom, text="Setups will be saved in the following directory:",bg="#DCDCDC")
         self.lbl.grid(row=4, pady=10)
         
-        self.lbl2 = tk.Label(frame_bottom, text=os.path.expanduser('~\Documents\Documents')+'\Assetto Corsa Competizione\Setups')
+        self.lbl2 = tk.Label(frame_bottom, text=os.path.expanduser('~\Documents')+'\Assetto Corsa Competizione\Setups')
         self.lbl2.grid(row=5)
 
+        btn3 = tk.Button(frame_bottom, text="Change directory", command=self.onSaveDirectory)
+        btn3.grid(row=6)
+
         self.lbl3 = tk.Label(frame_bottom, text="No setup opened")
-        self.lbl3.grid(row=6)
+        self.lbl3.grid(row=7)
 
     def onOpen(self):
         ftypes = [('Setup files', '*.json'), ('All files', '*')]
@@ -217,11 +220,17 @@ class ACCSetupManager(tk.Frame):
         if fl != '':
             text = self.readFile(fl, True)
 
+    def onSaveDirectory(self):
+        folder_selected = filedialog.askdirectory()
+        self.lbl2.config(text=folder_selected)
+
+
     def onLoad(self):
         self.setuplist.delete(0,'end')
 
         try:
-            localdir =(os.path.expanduser('~\Documents')+'\Assetto Corsa Competizione\Setups\\'
+            localdir = (self.lbl2['text']
+            + '\\'
             + self.CarListFolder[self.CarList.index(self.car_variable.get())] 
             + "\\" 
             + self.TrackListFolder[self.TrackList.index(self.track_variable.get())])
@@ -257,7 +266,7 @@ class ACCSetupManager(tk.Frame):
         if(to_copy):
             try:
                 if(self.CarListFolder[self.CarList.index(self.car_variable.get())] == data['carName']):
-                    destination = os.path.join( os.path.expanduser('~\Documents'), 'Assetto Corsa Competizione', 'Setups', self.CarListFolder[self.CarList.index(self.car_variable.get())], self.TrackListFolder[self.TrackList.index(self.track_variable.get())])
+                    destination = os.path.join( self.lbl2['text'], self.CarListFolder[self.CarList.index(self.car_variable.get())], self.TrackListFolder[self.TrackList.index(self.track_variable.get())])
                     shutil.copy2(filename, destination)
             except ValueError:
                     self.popup('You must select a car and a track first, setup won\'t be copied')
@@ -283,7 +292,7 @@ class ACCSetupManager(tk.Frame):
         return out
 
     def display(self,event): 
-        current_filename = os.path.join( os.path.expanduser('~\Documents'), 'Assetto Corsa Competizione', 'Setups', self.CarListFolder[self.CarList.index(self.car_variable.get())], self.TrackListFolder[self.TrackList.index(self.track_variable.get())], self.setuplist.get(self.setuplist.curselection()))
+        current_filename = os.path.join( self.lbl2['text'], self.CarListFolder[self.CarList.index(self.car_variable.get())], self.TrackListFolder[self.TrackList.index(self.track_variable.get())], self.setuplist.get(self.setuplist.curselection()))
         self.readFile(current_filename, False)
 
     def popup(self,messagetext):
